@@ -1,0 +1,192 @@
+@page "/camera"
+@inject IMediaPicker MediaPicker
+
+<PageTitle>Camera Demo</PageTitle>
+
+<h1>📷 Camera Integration</h1>
+
+<p>This demo shows how to integrate native camera functionality with Blazor Hybrid.</p>
+
+<div class="demo-section">
+    <h3>Take a Photo</h3>
+    <ButtonControl Text="📸 Take Photo"
+                   OnClickCallback="TakePhoto"
+                   CustomClasss="btn btn-primary"
+                   disabled="@(!MediaPicker.IsCaptureSupported)" />
+    <ButtonControl Text="🖼️ Pick from Gallery"
+                   OnClickCallback="PickPhoto"
+                   CustomClasss="btn btn-secondary" />
+</div>
+
+@if (!string.IsNullOrEmpty(errorMessage))
+{
+    <div class="alert alert-danger mt-3">
+        <strong>Error:</strong> @errorMessage
+    </div>
+}
+
+@if (photoData != null)
+{
+    <div class="photo-result mt-4">
+        <h4>Captured Photo:</h4>
+        <img src="@photoData" alt="Captured photo" class="captured-photo" />
+        <div class="mt-2">
+            <small>File: @photoFileName</small>
+        </div>
+    </div>
+}
+else
+{
+    <div class="alert alert-info mt-3">
+        No photo taken yet. Click the button above to capture or select a photo.
+    </div>
+}
+
+<div class="info-box mt-4">
+    <h4>💡 How It Works</h4>
+    <ul>
+        <li><strong>Native API:</strong> Uses .NET MAUI's <code>IMediaPicker</code> interface</li>
+        <li><strong>Platform-Specific:</strong> Automatically uses iOS Camera or Android Camera</li>
+        <li><strong>Permissions:</strong> App requests camera permissions at runtime</li>
+        <li><strong>Cross-Platform:</strong> Same C# code works on iOS and Android</li>
+    </ul>
+</div>
+
+@code {
+    private string? photoData;
+    private string? photoFileName;
+    private string? errorMessage;
+
+    private async Task TakePhoto()
+    {
+        try
+        {
+            errorMessage = null;
+
+            if (!MediaPicker.IsCaptureSupported)
+            {
+                errorMessage = "Camera capture is not supported on this device.";
+                return;
+            }
+
+            // Check and request camera permission
+            var cameraStatus = await Permissions.CheckStatusAsync<Permissions.Camera>();
+            if (cameraStatus != PermissionStatus.Granted)
+            {
+                cameraStatus = await Permissions.RequestAsync<Permissions.Camera>();
+            }
+
+            if (cameraStatus != PermissionStatus.Granted)
+            {
+                errorMessage = "Camera permission is required to take photos. Please grant permission in your device settings.";
+                return;
+            }
+
+            var photo = await MediaPicker.CapturePhotoAsync();
+            await ProcessPhoto(photo);
+        }
+        catch (FeatureNotSupportedException)
+        {
+            errorMessage = "Camera feature is not available on this device.";
+        }
+        catch (PermissionException)
+        {
+            errorMessage = "Permission to access camera was denied. Please enable camera access in settings.";
+        }
+        catch (Exception ex)
+        {
+            errorMessage = $"Error taking photo: {ex.Message}";
+        }
+    }
+
+    private async Task PickPhoto()
+    {
+        try
+        {
+            errorMessage = null;
+
+            // Check and request photo library permission
+            var photoStatus = await Permissions.CheckStatusAsync<Permissions.Photos>();
+            if (photoStatus != PermissionStatus.Granted)
+            {
+                photoStatus = await Permissions.RequestAsync<Permissions.Photos>();
+            }
+
+            if (photoStatus != PermissionStatus.Granted)
+            {
+                errorMessage = "Photo library permission is required to select photos. Please grant permission in your device settings.";
+                return;
+            }
+
+            var photo = await MediaPicker.PickPhotoAsync(new MediaPickerOptions
+            {
+                Title = "Select a photo"
+            });
+
+            await ProcessPhoto(photo);
+        }
+        catch (Exception ex)
+        {
+            errorMessage = $"Error picking photo: {ex.Message}";
+        }
+    }
+
+    private async Task ProcessPhoto(FileResult? photo)
+    {
+        if (photo != null)
+        {
+            photoFileName = photo.FileName;
+
+            // Read photo as stream and convert to base64
+            using var stream = await photo.OpenReadAsync();
+            using var memoryStream = new MemoryStream();
+            await stream.CopyToAsync(memoryStream);
+            var bytes = memoryStream.ToArray();
+            var base64 = Convert.ToBase64String(bytes);
+
+            photoData = $"data:image/jpeg;base64,{base64}";
+            StateHasChanged();
+        }
+    }
+}
+
+<style>
+    .demo-section {
+        padding: 1rem;
+        background: #f8f9fa;
+        border-radius: 8px;
+        margin: 1rem 0;
+    }
+
+    .captured-photo {
+        max-width: 100%;
+        max-height: 400px;
+        border-radius: 8px;
+        box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+    }
+
+    .photo-result {
+        padding: 1rem;
+        background: white;
+        border: 2px solid #dee2e6;
+        border-radius: 8px;
+    }
+
+    .info-box {
+        padding: 1rem;
+        background: #e7f3ff;
+        border-left: 4px solid #0066cc;
+        border-radius: 4px;
+    }
+
+    .info-box ul {
+        margin: 0.5rem 0 0 0;
+    }
+
+    .info-box code {
+        background: #fff;
+        padding: 2px 6px;
+        border-radius: 3px;
+        color: #d63384;
+    }
+</style>

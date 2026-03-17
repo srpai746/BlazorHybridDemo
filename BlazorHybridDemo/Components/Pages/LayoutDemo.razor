@@ -1,0 +1,155 @@
+@page "/layoutdemo"
+
+<PageTitle>Layout Demo</PageTitle>
+
+<h1>🎨 Dynamic Layout Switching</h1>
+
+<p>This demo shows how to dynamically switch between different layouts at runtime.</p>
+
+<div class="demo-section">
+    <h3>Current Layout</h3>
+    <div class="current-layout-display">
+        <strong>@currentLayoutName</strong>
+    </div>
+</div>
+
+<div class="demo-section mt-4">
+    <h3>Switch Layout</h3>
+    <p>Click a button below to change the entire app layout:</p>
+
+    <ButtonControl Text="🏠 Main Layout (with Sidebar)"
+                   OnClickCallback="() => SwitchToLayout(typeof(Layout.MainLayout))"
+                   CustomClasss="btn btn-primary btn-lg me-2 mb-2" />
+
+    <ButtonControl Text="✨ Minimal Layout (Clean & Simple)"
+                   OnClickCallback="() => SwitchToLayout(typeof(Layout.MinimalLayout))"
+                   CustomClasss="btn btn-success btn-lg mb-2" />
+</div>
+
+@if (!string.IsNullOrEmpty(switchMessage))
+{
+    <div class="alert alert-success mt-3">
+        @switchMessage
+    </div>
+}
+
+<div class="info-box mt-4">
+    <h4>💡 How Dynamic Layout Switching Works</h4>
+
+    <h5>1. Routes.razor Setup:</h5>
+    <pre><code>@@code {
+    private Type LayoutType = typeof(MainLayout);
+
+    public void SetLayout(Type layout)
+    {
+        if (layout != LayoutType)
+        {
+            this.LayoutType = layout;
+            StateHasChanged();
+        }
+    }
+}</code></pre>
+
+    <h5>2. Cascading the Routes Component:</h5>
+    <pre><code>&lt;Router AppAssembly="@@typeof(MauiProgram).Assembly"&gt;
+    &lt;Found Context="routeData"&gt;
+        &lt;CascadingValue Value="this"&gt;
+            &lt;RouteView RouteData="@@routeData" DefaultLayout="@@this.LayoutType" /&gt;
+        &lt;/CascadingValue&gt;
+    &lt;/Found&gt;
+&lt;/Router&gt;</code></pre>
+
+    <h5>3. Receiving in Component:</h5>
+    <pre><code>[CascadingParameter]
+public Routes? RoutesComponent { get; set; }
+
+private void SwitchLayout(Type layoutType)
+{
+    RoutesComponent?.SetLayout(layoutType);
+}</code></pre>
+
+    <h5>Benefits:</h5>
+    <ul>
+        <li>✅ Change layouts without navigation</li>
+        <li>✅ Different layouts for different sections</li>
+        <li>✅ Responsive to user preferences</li>
+        <li>✅ Clean separation of concerns</li>
+    </ul>
+</div>
+
+@code {
+    [CascadingParameter]
+    public Routes? RoutesComponent { get; set; }
+
+    private string currentLayoutName = "Main Layout";
+    private string switchMessage = "";
+
+    private void SwitchToLayout(Type layoutType)
+    {
+        if (RoutesComponent != null)
+        {
+            RoutesComponent.SetLayout(layoutType);
+
+            currentLayoutName = layoutType.Name switch
+            {
+                "MainLayout" => "Main Layout (with Sidebar)",
+                "MinimalLayout" => "Minimal Layout (Clean & Simple)",
+                _ => layoutType.Name
+            };
+
+            switchMessage = $"Switched to {currentLayoutName}!";
+            StateHasChanged();
+
+            // Clear message after 3 seconds
+            Task.Delay(3000).ContinueWith(_ =>
+            {
+                switchMessage = "";
+                InvokeAsync(StateHasChanged);
+            });
+        }
+    }
+}
+
+<style>
+    .demo-section {
+        padding: 1rem;
+        background: #f8f9fa;
+        border-radius: 8px;
+        margin: 1rem 0;
+    }
+
+    .current-layout-display {
+        padding: 2rem;
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        color: white;
+        border-radius: 8px;
+        text-align: center;
+        font-size: 1.5rem;
+    }
+
+    .info-box {
+        padding: 1rem;
+        background: #e7f3ff;
+        border-left: 4px solid #0066cc;
+        border-radius: 4px;
+    }
+
+    .info-box pre {
+        background: #f8f9fa;
+        padding: 1rem;
+        border-radius: 4px;
+        overflow-x: auto;
+        margin-top: 0.5rem;
+    }
+
+    .info-box code {
+        background: transparent;
+        padding: 0;
+        color: #212529;
+        font-size: 0.85em;
+    }
+
+    .info-box ul {
+        margin-top: 0.5rem;
+    }
+</style>

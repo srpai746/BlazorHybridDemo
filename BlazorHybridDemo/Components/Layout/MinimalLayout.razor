@@ -1,0 +1,72 @@
+@inherits LayoutComponentBase
+
+<div class="minimal-layout">
+    <header class="minimal-header">
+        <div class="container">
+            <h2>🎨 Minimal Layout</h2>
+            <small>Clean and distraction-free</small>
+        </div>
+    </header>
+
+    <main class="minimal-content">
+        <div class="container">
+            @Body
+        </div>
+    </main>
+
+    <footer class="minimal-footer">
+        <div class="container">
+            <small>Blazor Hybrid Demo - Minimal Layout</small>
+        </div>
+    </footer>
+</div>
+
+<style>
+    .minimal-layout {
+        display: flex;
+        flex-direction: column;
+        min-height: 100vh;
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        color: white;
+    }
+
+    .minimal-header {
+        background: rgba(0, 0, 0, 0.2);
+        padding: 1.5rem 0;
+        box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+    }
+
+    .minimal-header h2 {
+        margin: 0;
+        font-size: 1.5rem;
+    }
+
+    .minimal-header small {
+        color: rgba(255, 255, 255, 0.8);
+    }
+
+    .minimal-content {
+        flex: 1;
+        padding: 2rem 0;
+    }
+
+    .minimal-content .container {
+        background: white;
+        color: #333;
+        padding: 2rem;
+        border-radius: 12px;
+        box-shadow: 0 4px 20px rgba(0, 0, 0, 0.2);
+        max-width: 1200px;
+        margin: 0 auto;
+    }
+
+    .minimal-footer {
+        background: rgba(0, 0, 0, 0.2);
+        padding: 1rem 0;
+        text-align: center;
+    }
+
+    .container {
+        padding: 0 1rem;
+    }
+</style>

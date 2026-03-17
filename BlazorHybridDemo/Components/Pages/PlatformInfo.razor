@@ -1,0 +1,356 @@
+@page "/platforminfo"
+@using System.Reflection
+
+<PageTitle>Platform Info</PageTitle>
+
+<h1>📱 Platform Information</h1>
+
+<p>This demo shows how to access device and platform information in Blazor Hybrid.</p>
+
+<div class="info-cards">
+    <div class="info-card">
+        <h4>🖥️ Device Information</h4>
+        <table class="table table-sm">
+            <tbody>
+                <tr>
+                    <td><strong>Manufacturer:</strong></td>
+                    <td>@DeviceInfo.Current.Manufacturer</td>
+                </tr>
+                <tr>
+                    <td><strong>Model:</strong></td>
+                    <td>@DeviceInfo.Current.Model</td>
+                </tr>
+                <tr>
+                    <td><strong>Name:</strong></td>
+                    <td>@DeviceInfo.Current.Name</td>
+                </tr>
+                <tr>
+                    <td><strong>Platform:</strong></td>
+                    <td>@DeviceInfo.Current.Platform</td>
+                </tr>
+                <tr>
+                    <td><strong>Version:</strong></td>
+                    <td>@DeviceInfo.Current.VersionString</td>
+                </tr>
+                <tr>
+                    <td><strong>Device Type:</strong></td>
+                    <td>@DeviceInfo.Current.DeviceType</td>
+                </tr>
+                <tr>
+                    <td><strong>Idiom:</strong></td>
+                    <td>@DeviceInfo.Current.Idiom</td>
+                </tr>
+            </tbody>
+        </table>
+    </div>
+
+    <div class="info-card">
+        <h4>📲 Display Information</h4>
+        <table class="table table-sm">
+            <tbody>
+                <tr>
+                    <td><strong>Width:</strong></td>
+                    <td>@mainDisplay?.Width.ToString("F0") pixels</td>
+                </tr>
+                <tr>
+                    <td><strong>Height:</strong></td>
+                    <td>@mainDisplay?.Height.ToString("F0") pixels</td>
+                </tr>
+                <tr>
+                    <td><strong>Density:</strong></td>
+                    <td>@mainDisplay?.Density.ToString("F2")</td>
+                </tr>
+                <tr>
+                    <td><strong>Orientation:</strong></td>
+                    <td>@mainDisplay?.Orientation</td>
+                </tr>
+                <tr>
+                    <td><strong>Rotation:</strong></td>
+                    <td>@mainDisplay?.Rotation degrees</td>
+                </tr>
+                <tr>
+                    <td><strong>Refresh Rate:</strong></td>
+                    <td>@mainDisplay?.RefreshRate Hz</td>
+                </tr>
+            </tbody>
+        </table>
+    </div>
+
+    <div class="info-card">
+        <h4>🔋 Battery Information</h4>
+        <table class="table table-sm">
+            <tbody>
+                <tr>
+                    <td><strong>Charge Level:</strong></td>
+                    <td>
+                        <div class="battery-indicator">
+                            <div class="battery-level" style="width: @((Battery.ChargeLevel * 100).ToString("F0"))%">
+                                @((Battery.ChargeLevel * 100).ToString("F0"))%
+                            </div>
+                        </div>
+                    </td>
+                </tr>
+                <tr>
+                    <td><strong>State:</strong></td>
+                    <td>
+                        @Battery.State
+                        @if (Battery.State == BatteryState.Charging)
+                        {
+                            <span class="badge bg-success">⚡ Charging</span>
+                        }
+                    </td>
+                </tr>
+                <tr>
+                    <td><strong>Power Source:</strong></td>
+                    <td>@Battery.PowerSource</td>
+                </tr>
+                <tr>
+                    <td><strong>Energy Saver:</strong></td>
+                    <td>@(Battery.EnergySaverStatus == EnergySaverStatus.On ? "✅ On" : "❌ Off")</td>
+                </tr>
+            </tbody>
+        </table>
+    </div>
+
+    <div class="info-card">
+        <h4>🌐 Connectivity</h4>
+        <table class="table table-sm">
+            <tbody>
+                <tr>
+                    <td><strong>Network Access:</strong></td>
+                    <td>
+                        @Connectivity.NetworkAccess
+                        @if (Connectivity.NetworkAccess == NetworkAccess.Internet)
+                        {
+                            <span class="badge bg-success">✅ Connected</span>
+                        }
+                        else
+                        {
+                            <span class="badge bg-danger">❌ Offline</span>
+                        }
+                    </td>
+                </tr>
+                <tr>
+                    <td><strong>Connection Profiles:</strong></td>
+                    <td>
+                        @foreach (var profile in Connectivity.ConnectionProfiles)
+                        {
+                            <span class="badge bg-info me-1">@profile</span>
+                        }
+                    </td>
+                </tr>
+            </tbody>
+        </table>
+    </div>
+
+    <div class="info-card">
+        <h4>ℹ️ App Information</h4>
+        <table class="table table-sm">
+            <tbody>
+                <tr>
+                    <td><strong>Package Name:</strong></td>
+                    <td>@AppInfo.PackageName</td>
+                </tr>
+                <tr>
+                    <td><strong>Name:</strong></td>
+                    <td>@AppInfo.Name</td>
+                </tr>
+                <tr>
+                    <td><strong>Version:</strong></td>
+                    <td>@AppInfo.VersionString</td>
+                </tr>
+                <tr>
+                    <td><strong>Build:</strong></td>
+                    <td>@AppInfo.BuildString</td>
+                </tr>
+                <tr>
+                    <td><strong>Theme:</strong></td>
+                    <td>@AppInfo.RequestedTheme</td>
+                </tr>
+                <tr>
+                    <td><strong>Layout Direction:</strong></td>
+                    <td>@AppInfo.RequestedLayoutDirection</td>
+                </tr>
+            </tbody>
+        </table>
+    </div>
+
+    <div class="info-card">
+        <h4>🔐 Secure Storage Demo</h4>
+        <div class="mb-3">
+            <label>Key:</label>
+            <input type="text" class="form-control" @bind="storageKey" placeholder="storage_key" />
+        </div>
+        <div class="mb-3">
+            <label>Value:</label>
+            <input type="text" class="form-control" @bind="storageValue" placeholder="value" />
+        </div>
+        <ButtonControl Text="💾 Save"
+                       OnClickCallback="SaveToSecureStorage"
+                       CustomClasss="btn btn-primary btn-sm" />
+        <ButtonControl Text="📖 Load"
+                       OnClickCallback="LoadFromSecureStorage"
+                       CustomClasss="btn btn-secondary btn-sm" />
+        <ButtonControl Text="🗑️ Delete"
+                       OnClickCallback="DeleteFromSecureStorage"
+                       CustomClasss="btn btn-danger btn-sm" />
+
+        @if (!string.IsNullOrEmpty(storageMessage))
+        {
+            <div class="alert alert-info mt-2 mb-0">
+                @storageMessage
+            </div>
+        }
+    </div>
+</div>
+
+<div class="info-box mt-4">
+    <h4>💡 Platform Features Available</h4>
+    <ul>
+        <li><strong>DeviceInfo:</strong> Access device details, model, manufacturer</li>
+        <li><strong>DisplayInfo:</strong> Screen dimensions, density, orientation</li>
+        <li><strong>Battery:</strong> Battery level, charging state, power source</li>
+        <li><strong>Connectivity:</strong> Network status, connection types</li>
+        <li><strong>AppInfo:</strong> App version, package name, theme</li>
+        <li><strong>SecureStorage:</strong> Encrypted key-value storage</li>
+        <li><strong>Preferences:</strong> Simple key-value storage</li>
+        <li><strong>Vibration:</strong> Device haptic feedback</li>
+        <li><strong>Flashlight:</strong> Control device flashlight</li>
+    </ul>
+
+    <h5 class="mt-3">Code Example:</h5>
+    <pre><code>// Device Info
+var model = DeviceInfo.Current.Model;
+var platform = DeviceInfo.Current.Platform;
+
+// Secure Storage
+await SecureStorage.SetAsync("key", "value");
+var value = await SecureStorage.GetAsync("key");</code></pre>
+</div>
+
+@code {
+    private DisplayInfo? mainDisplay;
+    private string storageKey = "demo_key";
+    private string storageValue = "";
+    private string? storageMessage;
+
+    protected override void OnInitialized()
+    {
+        mainDisplay = DeviceDisplay.MainDisplayInfo;
+    }
+
+    private async Task SaveToSecureStorage()
+    {
+        try
+        {
+            await SecureStorage.SetAsync(storageKey, storageValue);
+            storageMessage = $"✅ Saved '{storageKey}' = '{storageValue}'";
+        }
+        catch (Exception ex)
+        {
+            storageMessage = $"❌ Error: {ex.Message}";
+        }
+    }
+
+    private async Task LoadFromSecureStorage()
+    {
+        try
+        {
+            var value = await SecureStorage.GetAsync(storageKey);
+            if (value != null)
+            {
+                storageValue = value;
+                storageMessage = $"✅ Loaded '{storageKey}' = '{value}'";
+            }
+            else
+            {
+                storageMessage = $"❌ Key '{storageKey}' not found";
+            }
+        }
+        catch (Exception ex)
+        {
+            storageMessage = $"❌ Error: {ex.Message}";
+        }
+    }
+
+    private async Task DeleteFromSecureStorage()
+    {
+        try
+        {
+            SecureStorage.Remove(storageKey);
+            storageMessage = $"✅ Deleted '{storageKey}'";
+            storageValue = "";
+        }
+        catch (Exception ex)
+        {
+            storageMessage = $"❌ Error: {ex.Message}";
+        }
+    }
+}
+
+<style>
+    .info-cards {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+        gap: 1rem;
+        margin: 1rem 0;
+    }
+
+    .info-card {
+        background: white;
+        border: 2px solid #dee2e6;
+        border-radius: 8px;
+        padding: 1rem;
+    }
+
+    .info-card h4 {
+        margin-bottom: 1rem;
+        color: #0066cc;
+        font-size: 1.1rem;
+    }
+
+    .battery-indicator {
+        width: 100%;
+        height: 30px;
+        background: #e9ecef;
+        border-radius: 4px;
+        overflow: hidden;
+        position: relative;
+    }
+
+    .battery-level {
+        height: 100%;
+        background: linear-gradient(90deg, #28a745 0%, #20c997 100%);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        color: white;
+        font-weight: bold;
+        transition: width 0.3s ease;
+    }
+
+    .info-box {
+        padding: 1rem;
+        background: #e7f3ff;
+        border-left: 4px solid #0066cc;
+        border-radius: 4px;
+    }
+
+    .info-box ul {
+        margin: 0.5rem 0 0 0;
+    }
+
+    .info-box pre {
+        background: #f8f9fa;
+        padding: 1rem;
+        border-radius: 4px;
+        overflow-x: auto;
+        margin-top: 0.5rem;
+    }
+
+    .info-box code {
+        background: transparent;
+        padding: 0;
+        color: #212529;
+    }
+</style>

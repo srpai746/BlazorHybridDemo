@@ -1,0 +1,323 @@
+@page "/"
+
+<PageTitle>Blazor Hybrid Demo</PageTitle>
+
+<div class="hero-section">
+    <h1>🚀 Blazor Hybrid in .NET MAUI</h1>
+    <p class="lead">Native + Web: The Best of Both Worlds</p>
+</div>
+
+<div class="welcome-content">
+    <div class="intro-card">
+        <h3>Welcome to the Demo App!</h3>
+        <p>
+            This application demonstrates the key features and capabilities of
+            <strong>Blazor Hybrid</strong> in .NET MAUI. You'll see how to:
+        </p>
+        <ul>
+            <li>Build web UIs with Razor components</li>
+            <li>Access native platform APIs</li>
+            <li>Manage application state</li>
+            <li>Integrate JavaScript interop</li>
+            <li>Use device features like camera and GPS</li>
+        </ul>
+    </div>
+
+    <div class="feature-grid">
+        <div class="feature-card">
+            <div class="feature-icon">📱</div>
+            <h4>Counter</h4>
+            <p>Basic Blazor component with state management</p>
+            <a href="/counter" class="btn btn-sm btn-primary">Try it →</a>
+        </div>
+
+        <div class="feature-card">
+            <div class="feature-icon">🔄</div>
+            <h4>State Demo</h4>
+            <p>Shared state across components with singleton service</p>
+            <a href="/statedemo" class="btn btn-sm btn-primary">Try it →</a>
+        </div>
+
+        <div class="feature-card">
+            <div class="feature-icon">📷</div>
+            <h4>Camera</h4>
+            <p>Native camera integration with photo capture</p>
+            <a href="/camera" class="btn btn-sm btn-primary">Try it →</a>
+        </div>
+
+        <div class="feature-card">
+            <div class="feature-icon">📍</div>
+            <h4>Location</h4>
+            <p>Access device GPS and geolocation services</p>
+            <a href="/location" class="btn btn-sm btn-primary">Try it →</a>
+        </div>
+
+        <div class="feature-card">
+            <div class="feature-icon">🔄</div>
+            <h4>JS Interop</h4>
+            <p>Bidirectional C# and JavaScript communication</p>
+            <a href="/jsinterop" class="btn btn-sm btn-primary">Try it →</a>
+        </div>
+
+        <div class="feature-card">
+            <div class="feature-icon">📊</div>
+            <h4>Platform Info</h4>
+            <p>Device details, battery, connectivity, and more</p>
+            <a href="/platforminfo" class="btn btn-sm btn-primary">Try it →</a>
+        </div>
+    </div>
+
+    <div class="architecture-overview mt-5">
+        <h3>🏗️ How Blazor Hybrid Works</h3>
+        <div class="architecture-diagram">
+            <div class="arch-layer arch-native">
+                <strong>.NET MAUI Application</strong>
+                <small>Native iOS/Android/Windows/Mac</small>
+            </div>
+            <div class="arch-arrow">⬇️</div>
+            <div class="arch-layer arch-webview">
+                <strong>BlazorWebView Component</strong>
+                <small>Hosts Blazor content in native WebView</small>
+            </div>
+            <div class="arch-arrow">⬇️</div>
+            <div class="arch-layer arch-razor">
+                <strong>Razor Components (HTML/CSS/C#)</strong>
+                <small>Your web-based UI</small>
+            </div>
+            <div class="arch-arrow">⬍</div>
+            <div class="arch-layer arch-platform">
+                <strong>Platform APIs</strong>
+                <small>Camera • GPS • Storage • Sensors</small>
+            </div>
+        </div>
+    </div>
+
+    <div class="benefits-section mt-5">
+        <h3>✨ Why Blazor Hybrid?</h3>
+        <div class="benefits-grid">
+            <div class="benefit-item">
+                <strong>🔄 Code Reuse</strong>
+                <p>Share components between web and mobile apps</p>
+            </div>
+            <div class="benefit-item">
+                <strong>🚀 Native Performance</strong>
+                <p>Full access to platform APIs and native features</p>
+            </div>
+            <div class="benefit-item">
+                <strong>💻 Single Language</strong>
+                <p>C# for both UI and business logic</p>
+            </div>
+            <div class="benefit-item">
+                <strong>🔧 Rich Tooling</strong>
+                <p>Visual Studio, Hot Reload, and debugging support</p>
+            </div>
+            <div class="benefit-item">
+                <strong>📱 Cross-Platform</strong>
+                <p>iOS, Android, Windows, macOS from one codebase</p>
+            </div>
+            <div class="benefit-item">
+                <strong>💰 Cost Effective</strong>
+                <p>One team can build web and mobile apps</p>
+            </div>
+        </div>
+    </div>
+
+    <div class="info-box mt-5">
+        <h4>📚 About This Demo</h4>
+        <p>
+            This demo application is part of the session
+            <strong>"Native + Web: Understanding Blazor Hybrid in .NET MAUI"</strong>.
+        </p>
+        <p>
+            Each demo page showcases a specific feature with working code examples,
+            explanations, and best practices. Navigate using the menu on the left to
+            explore different capabilities.
+        </p>
+        <p class="mb-0">
+            <strong>Tech Stack:</strong> .NET 9.0, MAUI, Blazor Hybrid<br />
+            <strong>Platforms:</strong> iOS 14.2+, Android API 24+, Windows, macOS
+        </p>
+    </div>
+</div>
+
+<style>
+    .hero-section {
+        text-align: center;
+        padding: 2rem 0;
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        color: white;
+        border-radius: 12px;
+        margin-bottom: 2rem;
+    }
+
+    .hero-section h1 {
+        font-size: 2.5rem;
+        margin-bottom: 0.5rem;
+    }
+
+    .hero-section .lead {
+        font-size: 1.25rem;
+        opacity: 0.95;
+    }
+
+    .intro-card {
+        background: #f8f9fa;
+        padding: 1.5rem;
+        border-radius: 8px;
+        margin-bottom: 2rem;
+    }
+
+    .intro-card h3 {
+        color: #0066cc;
+        margin-bottom: 1rem;
+    }
+
+    .feature-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+        gap: 1rem;
+        margin: 2rem 0;
+    }
+
+    .feature-card {
+        background: white;
+        border: 2px solid #dee2e6;
+        border-radius: 8px;
+        padding: 1.5rem;
+        text-align: center;
+        transition: transform 0.2s, box-shadow 0.2s;
+    }
+
+    .feature-card:hover {
+        transform: translateY(-4px);
+        box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+    }
+
+    .feature-icon {
+        font-size: 3rem;
+        margin-bottom: 1rem;
+    }
+
+    .feature-card h4 {
+        color: #333;
+        margin-bottom: 0.5rem;
+    }
+
+    .feature-card p {
+        color: #666;
+        margin-bottom: 1rem;
+        font-size: 0.9rem;
+    }
+
+    .architecture-overview {
+        background: #e7f3ff;
+        padding: 2rem;
+        border-radius: 8px;
+    }
+
+    .architecture-overview h3 {
+        text-align: center;
+        color: #0066cc;
+        margin-bottom: 2rem;
+    }
+
+    .architecture-diagram {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        gap: 0.5rem;
+    }
+
+    .arch-layer {
+        background: white;
+        border: 2px solid #0066cc;
+        border-radius: 8px;
+        padding: 1rem 2rem;
+        text-align: center;
+        min-width: 300px;
+    }
+
+    .arch-layer strong {
+        display: block;
+        color: #0066cc;
+        margin-bottom: 0.25rem;
+    }
+
+    .arch-layer small {
+        color: #666;
+    }
+
+    .arch-native {
+        background: #e3f2fd;
+    }
+
+    .arch-webview {
+        background: #f3e5f5;
+    }
+
+    .arch-razor {
+        background: #fff3e0;
+    }
+
+    .arch-platform {
+        background: #e8f5e9;
+    }
+
+    .arch-arrow {
+        font-size: 1.5rem;
+        color: #0066cc;
+    }
+
+    .benefits-section {
+        background: #f8f9fa;
+        padding: 2rem;
+        border-radius: 8px;
+    }
+
+    .benefits-section h3 {
+        text-align: center;
+        color: #0066cc;
+        margin-bottom: 2rem;
+    }
+
+    .benefits-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+        gap: 1.5rem;
+    }
+
+    .benefit-item {
+        background: white;
+        padding: 1rem;
+        border-radius: 8px;
+        border-left: 4px solid #0066cc;
+    }
+
+    .benefit-item strong {
+        color: #0066cc;
+        display: block;
+        margin-bottom: 0.5rem;
+    }
+
+    .benefit-item p {
+        margin: 0;
+        font-size: 0.9rem;
+        color: #666;
+    }
+
+    .info-box {
+        padding: 1.5rem;
+        background: #fff3cd;
+        border-left: 4px solid #ffc107;
+        border-radius: 4px;
+    }
+
+    .info-box h4 {
+        color: #856404;
+        margin-bottom: 1rem;
+    }
+
+    .info-box p {
+        margin-bottom: 0.5rem;
+    }
+</style>

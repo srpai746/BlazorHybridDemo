@@ -1,0 +1,4 @@
+<Solution>
+  <Project Path="BlazorHybridDemo.Tests/BlazorHybridDemo.Tests.csproj" />
+  <Project Path="BlazorHybridDemo/BlazorHybridDemo.csproj" />
+</Solution>

@@ -1,0 +1,219 @@
+@page "/jsinterop"
+@inject IJSRuntime JSRuntime
+
+<PageTitle>JS Interop Demo</PageTitle>
+
+<h1>🔄 JavaScript Interop Demo</h1>
+
+<p>This demo shows bidirectional communication between C# and JavaScript.</p>
+
+<div class="demo-section">
+    <h3>C# → JavaScript</h3>
+    <div class="mb-3">
+        <label>Enter a message:</label>
+        <input type="text" class="form-control" @bind="messageToJS" placeholder="Type something..." />
+    </div>
+    <ButtonControl Text="➡️ Send to JavaScript"
+                   OnClickCallback="CallJavaScript"
+                   CustomClasss="btn btn-primary" />
+    <ButtonControl Text="🔔 Show JS Alert"
+                   OnClickCallback="ShowAlert"
+                   CustomClasss="btn btn-secondary" />
+    <ButtonControl Text="💾 Read LocalStorage"
+                   OnClickCallback="GetLocalStorage"
+                   CustomClasss="btn btn-info" />
+</div>
+
+<div class="demo-section mt-3">
+    <h3>JavaScript → C#</h3>
+    <ButtonControl Text="📝 Register C# Callbacks"
+                   OnClickCallback="RegisterCallbacks"
+                   CustomClasss="btn btn-success" />
+    <button id="callCSharpBtn" class="btn btn-warning" disabled>
+        ⬅️ Call C# from JS
+    </button>
+</div>
+
+@if (!string.IsNullOrEmpty(jsResult))
+{
+    <div class="alert alert-success mt-3">
+        <strong>Result from JavaScript:</strong> @jsResult
+    </div>
+}
+
+@if (!string.IsNullOrEmpty(csharpCallMessage))
+{
+    <div class="alert alert-info mt-3">
+        <strong>JavaScript called C# method:</strong> @csharpCallMessage
+    </div>
+}
+
+<div class="demo-section mt-4">
+    <h3>Advanced: DOM Manipulation</h3>
+    <div id="dynamicContent" class="dynamic-box">
+        Original content
+    </div>
+    <ButtonControl Text="🎨 Change Content via JS"
+                   OnClickCallback="ChangeDomContent"
+                   CustomClasss="btn btn-primary mt-2" />
+    <ButtonControl Text="✨ Animate Element"
+                   OnClickCallback="AnimateElement"
+                   CustomClasss="btn btn-secondary mt-2" />
+</div>
+
+<div class="info-box mt-4">
+    <h4>💡 How It Works</h4>
+
+    <h5>C# Calling JavaScript:</h5>
+    <pre><code>// No return value
+await JSRuntime.InvokeVoidAsync("console.log", "Hello");
+
+// With return value
+var result = await JSRuntime.InvokeAsync&lt;string&gt;(
+    "localStorage.getItem", "key");</code></pre>
+
+    <h5>JavaScript Calling C#:</h5>
+    <pre><code>// In C#
+[JSInvokable]
+public static Task&lt;string&gt; GetData(string id)
+{
+    return Task.FromResult($"Data for {id}");
+}
+
+// In JavaScript
+DotNet.invokeMethodAsync('BlazorHybridDemo', 'GetData', 'id123');</code></pre>
+</div>
+
+@code {
+    private string messageToJS = "Hello from C#!";
+    private string? jsResult;
+    private string? csharpCallMessage;
+    private DotNetObjectReference<JSInteropDemo>? dotNetReference;
+
+    protected override void OnAfterRender(bool firstRender)
+    {
+        if (firstRender)
+        {
+            // Create .NET object reference for JavaScript callbacks
+            dotNetReference = DotNetObjectReference.Create(this);
+        }
+    }
+
+    private async Task CallJavaScript()
+    {
+        try
+        {
+            jsResult = await JSRuntime.InvokeAsync<string>(
+                "blazorDemo.showMessage",
+                messageToJS);
+        }
+        catch (Exception ex)
+        {
+            jsResult = $"Error: {ex.Message}";
+        }
+    }
+
+    private async Task ShowAlert()
+    {
+        await JSRuntime.InvokeVoidAsync("alert", $"Alert from C#: {messageToJS}");
+    }
+
+    private async Task GetLocalStorage()
+    {
+        try
+        {
+            // Set a value first
+            await JSRuntime.InvokeVoidAsync("localStorage.setItem", "demo-key", messageToJS);
+
+            // Read it back
+            var value = await JSRuntime.InvokeAsync<string>("localStorage.getItem", "demo-key");
+            jsResult = $"LocalStorage value: {value}";
+        }
+        catch (Exception ex)
+        {
+            jsResult = $"Error: {ex.Message}";
+        }
+    }
+
+    private async Task RegisterCallbacks()
+    {
+        if (dotNetReference != null)
+        {
+            await JSRuntime.InvokeVoidAsync("registerCSharpCallbacks", dotNetReference);
+            jsResult = "C# callbacks registered! Click 'Call C# from JS' button.";
+        }
+    }
+
+    [JSInvokable]
+    public static Task<string> GetCurrentTime()
+    {
+        return Task.FromResult(DateTime.Now.ToString("HH:mm:ss"));
+    }
+
+    [JSInvokable]
+    public Task<string> ProcessData(string input)
+    {
+        csharpCallMessage = $"Received: '{input}' at {DateTime.Now:HH:mm:ss}";
+        StateHasChanged();
+        return Task.FromResult($"Processed: {input.ToUpper()}");
+    }
+
+    private async Task ChangeDomContent()
+    {
+        var randomContent = $"<h4>Updated at {DateTime.Now:HH:mm:ss}</h4><p>Content changed from C#!</p>";
+        await JSRuntime.InvokeVoidAsync("blazorDemo.changeDom", "dynamicContent", randomContent);
+    }
+
+    private async Task AnimateElement()
+    {
+        await JSRuntime.InvokeVoidAsync("blazorDemo.animate", "dynamicContent");
+    }
+
+    public void Dispose()
+    {
+        dotNetReference?.Dispose();
+    }
+}
+
+<style>
+    .demo-section {
+        padding: 1rem;
+        background: #f8f9fa;
+        border-radius: 8px;
+        margin: 1rem 0;
+    }
+
+    .info-box {
+        padding: 1rem;
+        background: #e7f3ff;
+        border-left: 4px solid #0066cc;
+        border-radius: 4px;
+    }
+
+    .info-box pre {
+        background: #f8f9fa;
+        padding: 1rem;
+        border-radius: 4px;
+        overflow-x: auto;
+        margin-top: 0.5rem;
+    }
+
+    .info-box code {
+        background: transparent;
+        padding: 0;
+        color: #212529;
+        font-size: 0.9em;
+    }
+
+    .dynamic-box {
+        padding: 2rem;
+        background: #fff3cd;
+        border: 2px solid #ffc107;
+        border-radius: 8px;
+        text-align: center;
+        min-height: 100px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+    }
+</style>

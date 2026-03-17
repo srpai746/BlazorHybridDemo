@@ -1,0 +1,30 @@
+# Build results
+bin/
+obj/
+[Dd]ebug/
+[Rr]elease/
+
+# Visual Studio / Rider
+.vs/
+.idea/
+*.suo
+*.user
+*.userosscache
+*.sln.docstates
+*.userprefs
+*.DotSettings.user
+
+# macOS
+.DS_Store
+
+# MAUI specific
+*.apk
+*.aab
+*.ipa
+*.app
+
+# Test results
+TestResults/
+*.trx
+*.coverage
+*.coveragexml

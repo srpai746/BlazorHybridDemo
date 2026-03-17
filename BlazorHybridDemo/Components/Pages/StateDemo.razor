@@ -1,0 +1,266 @@
+@page "/statedemo"
+@inject AppStateService AppState
+@implements IDisposable
+
+<PageTitle>State Management Demo</PageTitle>
+
+<h1>🔄 State Management Demo</h1>
+
+<p>This demo shows how to manage shared state across components in Blazor Hybrid.</p>
+
+<div class="demo-section">
+    <h3>Global Application State</h3>
+    <p>State is shared across all components and persists during navigation.</p>
+
+    <div class="mb-3">
+        <label><strong>User Name:</strong></label>
+        <input type="text" class="form-control" @bind="userName" placeholder="Enter name" />
+        <ButtonControl Text="💾 Update User Name"
+                       OnClickCallback="UpdateUserName"
+                       CustomClasss="btn btn-primary mt-2" />
+    </div>
+
+    <div class="mb-3">
+        <label><strong>Counter Value:</strong></label>
+        <div class="counter-display">@AppState.Counter</div>
+        <ButtonControl Text="➕ Increment"
+                       OnClickCallback="IncrementCounter"
+                       CustomClasss="btn btn-success" />
+        <ButtonControl Text="➖ Decrement"
+                       OnClickCallback="DecrementCounter"
+                       CustomClasss="btn btn-danger" />
+        <ButtonControl Text="🔄 Reset"
+                       OnClickCallback="ResetCounter"
+                       CustomClasss="btn btn-secondary" />
+    </div>
+</div>
+
+<div class="state-display mt-4">
+    <h4>📊 Current State:</h4>
+    <div class="state-card">
+        <table class="table table-sm">
+            <tbody>
+                <tr>
+                    <td><strong>User Name:</strong></td>
+                    <td>@(string.IsNullOrEmpty(AppState.UserName) ? "(not set)" : AppState.UserName)</td>
+                </tr>
+                <tr>
+                    <td><strong>Counter:</strong></td>
+                    <td>@AppState.Counter</td>
+                </tr>
+                <tr>
+                    <td><strong>Last Updated:</strong></td>
+                    <td>@AppState.LastUpdated.ToString("HH:mm:ss")</td>
+                </tr>
+                <tr>
+                    <td><strong>Items Count:</strong></td>
+                    <td>@AppState.Items.Count</td>
+                </tr>
+            </tbody>
+        </table>
+    </div>
+</div>
+
+<div class="demo-section mt-4">
+    <h3>Items Collection</h3>
+    <div class="mb-3">
+        <input type="text" class="form-control" @bind="newItemText" placeholder="Add new item" />
+        <ButtonControl Text="➕ Add Item"
+                       OnClickCallback="AddItem"
+                       CustomClasss="btn btn-primary mt-2" />
+    </div>
+
+    <div class="items-list">
+        @if (AppState.Items.Any())
+        {
+            <ul class="list-group">
+                @foreach (var item in AppState.Items)
+                {
+                    <li class="list-group-item d-flex justify-content-between align-items-center">
+                        @item
+                        <ButtonControl Text="✕"
+                                       OnClickCallback="() => RemoveItem(item)"
+                                       CustomClasss="btn btn-sm btn-danger" />
+                    </li>
+                }
+            </ul>
+        }
+        else
+        {
+            <div class="alert alert-info">
+                No items yet. Add some items above!
+            </div>
+        }
+    </div>
+</div>
+
+<div class="info-box mt-4">
+    <h4>💡 How State Management Works</h4>
+
+    <p><strong>Pattern Used:</strong> Singleton Service with Event Notifications</p>
+
+    <h5>1. Define State Service (AppStateService.cs):</h5>
+    <pre><code>public class AppStateService
+{
+    private string _userName = "";
+
+    public string UserName
+    {
+        get => _userName;
+        set
+        {
+            _userName = value;
+            LastUpdated = DateTime.Now;
+            NotifyStateChanged();
+        }
+    }
+
+    public event Action? OnChange;
+
+    private void NotifyStateChanged() => OnChange?.Invoke();
+}</code></pre>
+
+    <h5>2. Register as Singleton (MauiProgram.cs):</h5>
+    <pre><code>builder.Services.AddSingleton&lt;AppStateService&gt;();</code></pre>
+
+    <h5>3. Subscribe to Changes (Component):</h5>
+    <pre><code>@@inject AppStateService AppState
+@@implements IDisposable
+
+protected override void OnInitialized()
+{
+    AppState.OnChange += StateHasChanged;
+}
+
+public void Dispose()
+{
+    AppState.OnChange -= StateHasChanged;
+}</code></pre>
+
+    <h5>Benefits:</h5>
+    <ul>
+        <li>✅ Shared state across all components</li>
+        <li>✅ Automatic UI updates when state changes</li>
+        <li>✅ Type-safe state management</li>
+        <li>✅ Easy to test and maintain</li>
+        <li>✅ No external dependencies required</li>
+    </ul>
+</div>
+
+@code {
+    private string userName = "";
+    private string newItemText = "";
+
+    protected override void OnInitialized()
+    {
+        // Subscribe to state changes
+        AppState.OnChange += StateHasChanged;
+
+        // Initialize local values from state
+        userName = AppState.UserName ?? "";
+    }
+
+    private void UpdateUserName()
+    {
+        AppState.UserName = userName;
+    }
+
+    private void IncrementCounter()
+    {
+        AppState.Counter++;
+    }
+
+    private void DecrementCounter()
+    {
+        AppState.Counter--;
+    }
+
+    private void ResetCounter()
+    {
+        AppState.Counter = 0;
+    }
+
+    private void AddItem()
+    {
+        if (!string.IsNullOrWhiteSpace(newItemText))
+        {
+            AppState.AddItem(newItemText);
+            newItemText = "";
+        }
+    }
+
+    private void RemoveItem(string item)
+    {
+        AppState.RemoveItem(item);
+    }
+
+    public void Dispose()
+    {
+        // Unsubscribe to prevent memory leaks
+        AppState.OnChange -= StateHasChanged;
+    }
+}
+
+<style>
+    .demo-section {
+        padding: 1rem;
+        background: #f8f9fa;
+        border-radius: 8px;
+        margin: 1rem 0;
+    }
+
+    .counter-display {
+        font-size: 3rem;
+        font-weight: bold;
+        text-align: center;
+        padding: 1rem;
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        color: white;
+        border-radius: 8px;
+        margin: 1rem 0;
+    }
+
+    .state-display {
+        background: white;
+        border: 2px solid #dee2e6;
+        border-radius: 8px;
+        padding: 1rem;
+    }
+
+    .state-card {
+        background: #f8f9fa;
+        padding: 1rem;
+        border-radius: 4px;
+    }
+
+    .items-list {
+        max-height: 300px;
+        overflow-y: auto;
+    }
+
+    .info-box {
+        padding: 1rem;
+        background: #e7f3ff;
+        border-left: 4px solid #0066cc;
+        border-radius: 4px;
+    }
+
+    .info-box pre {
+        background: #f8f9fa;
+        padding: 1rem;
+        border-radius: 4px;
+        overflow-x: auto;
+        margin-top: 0.5rem;
+    }
+
+    .info-box code {
+        background: transparent;
+        padding: 0;
+        color: #212529;
+        font-size: 0.85em;
+    }
+
+    .info-box ul {
+        margin-top: 0.5rem;
+    }
+</style>

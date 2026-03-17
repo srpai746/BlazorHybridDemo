@@ -1,0 +1,40 @@
+﻿@page "/counter"
+@inject NavigationManager Navigation
+
+<h1>Counter</h1>
+
+<p role="status">Current count: @currentCount</p>
+
+<button class="btn btn-primary" @onclick="IncrementCount">Click me</button>
+
+<div class="mt-4">
+    <h4>Navigation Example</h4>
+    <p>When counter reaches 5, you'll be redirected to the Weather page.</p>
+    <button class="btn btn-secondary" @onclick="GoToWeather">Go to Weather</button>
+    <button class="btn btn-info" @onclick="GoToHome">Go to Home</button>
+</div>
+
+@code {
+    private int currentCount = 0;
+
+    private void IncrementCount()
+    {
+        currentCount++;
+
+        // Programmatic navigation example
+        if (currentCount >= 5)
+        {
+            Navigation.NavigateTo("/weather");
+        }
+    }
+
+    private void GoToWeather()
+    {
+        Navigation.NavigateTo("/weather");
+    }
+
+    private void GoToHome()
+    {
+        Navigation.NavigateTo("/");
+    }
+}
